@@ -1,4 +1,4 @@
-package de.unikl.cs.disco.softenc;
+package de.unikl.cs.disco.secsh;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

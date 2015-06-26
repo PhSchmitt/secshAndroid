@@ -6,7 +6,7 @@ android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
-        applicationId 'de.unikl.cs.disco.softenc'
+        applicationId 'de.unikl.cs.disco.secsh'
         minSdkVersion 19
         targetSdkVersion 22
         versionCode 1
