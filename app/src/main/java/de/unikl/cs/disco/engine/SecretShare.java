@@ -61,6 +61,15 @@ public class SecretShare
     // class static methods
     // ==================================================
 
+    // ==================================================
+    // instance data
+    // ==================================================
+    private final PublicInfo publicInfo;
+
+    public SecretShare(final PublicInfo inPublicInfo) {
+        publicInfo = inPublicInfo;
+    }
+
     /**
      * http://www.cromwell-intl.com/security/crypto/diffie-hellman.html says
      * "... choosing some prime p which is larger than the largest possible secret key".
@@ -88,6 +97,8 @@ public class SecretShare
         //                  384 bits ->  370 cutoff
         //                 4096 bits -> 4024 cutoff
         //
+
+        //TODO this is much too expensive on our android
 
         if (originalBitLength < 180)
         {
@@ -149,39 +160,33 @@ public class SecretShare
         return ret;
     }
 
+
+    // All primes were tested via http://www.alpertron.com.ar/ECM.HTM
+    // All primes were tested with 100,000 iterations of Miller-Rabin
+
     public static boolean isTheModulusAppropriateForSecret(BigInteger modulus,
                                                            BigInteger secret)
     {
-        try
-        {
+        try {
             checkThatModulusIsAppropriate(modulus, secret);
             return true;
-        }
-        catch (SecretShareException e)
-        {
+        } catch (SecretShareException e) {
             return false;
         }
     }
 
     public static void checkThatModulusIsAppropriate(BigInteger primeModulus,
                                                      BigInteger secret)
-        throws SecretShareException
-    {
-        if (secret.compareTo(primeModulus) >= 0)
-        {
+            throws SecretShareException {
+        if (secret.compareTo(primeModulus) >= 0) {
             throw new SecretShareException("Secret cannot be larger than modulus.  " +
-                                           "Secret=" + secret + "\n" +
-                                           "Modulus=" + primeModulus);
+                    "Secret=" + secret + "\n" +
+                    "Modulus=" + primeModulus);
         }
 
         // Question - look at other rules?
 
     }
-
-
-
-    // All primes were tested via http://www.alpertron.com.ar/ECM.HTM
-    // All primes were tested with 100,000 iterations of Miller-Rabin
 
     public static BigInteger getPrimeUsedFor4096bigSecretPayload()
     {
@@ -207,38 +212,38 @@ public class SecretShare
         // This number is 1,234 digits long
         BigInteger p4096one =
                 new BigInteger(
-            "1671022210261044010706804337146599012127" +
-            "9427984758140486147735732543262527544919" +
-            "3095812289909599609334542417074310282054" +
-            "0780117501097269771621177740562184444713" +
-            "5311624699359973445785442150139493030849" +
-            "1201896951396220211014303634039307573549" +
-            "4951338587994892653929285926514054477984" +
-            "1897745831487644537568464106991023630108" +
-            "6045751504900830441750495932712549251755" +
-            "0884842714308894440025555839788342744866" +
-            "7101368958164663781091806630951947745404" +
-            "9899622319436016030246615841346729868014" +
-            "9869334160881652755341231281231973786191" +
-            "0590928243420749213395009469338508019541" +
-            "0958855418900088036159728065975165578015" +
-            "3079187511387238090409461192977321170936" +
-            "6081401737953645348323163171237010704282" +
-            "8481068031277612787461827099245660019965" +
-            "4423851454616735972464821439378482870833" +
-            "7709298145449348366148476664877596527269" +
-            "1765522730435723049823184958030880339674" +
-            "1433100452606317504985611860713079871716" +
-            "8809146278034477061142090096734446658190" +
-            "8273334857030516871663995504285034522155" +
-            "7158160427604895839673593745279150722839" +
-            "3997083495197879290548002853265127569910" +
-            "9306488129210915495451479419727501586051" +
-            "1232507931203905482587057398637416125459" +
-            "0876872367709717423642369650017374448020" +
-            "8386154750356267714638641781056467325078" +
-            "08534977443900875333446450467047221"
-            );
+                        "1671022210261044010706804337146599012127" +
+                                "9427984758140486147735732543262527544919" +
+                                "3095812289909599609334542417074310282054" +
+                                "0780117501097269771621177740562184444713" +
+                                "5311624699359973445785442150139493030849" +
+                                "1201896951396220211014303634039307573549" +
+                                "4951338587994892653929285926514054477984" +
+                                "1897745831487644537568464106991023630108" +
+                                "6045751504900830441750495932712549251755" +
+                                "0884842714308894440025555839788342744866" +
+                                "7101368958164663781091806630951947745404" +
+                                "9899622319436016030246615841346729868014" +
+                                "9869334160881652755341231281231973786191" +
+                                "0590928243420749213395009469338508019541" +
+                                "0958855418900088036159728065975165578015" +
+                                "3079187511387238090409461192977321170936" +
+                                "6081401737953645348323163171237010704282" +
+                                "8481068031277612787461827099245660019965" +
+                                "4423851454616735972464821439378482870833" +
+                                "7709298145449348366148476664877596527269" +
+                                "1765522730435723049823184958030880339674" +
+                                "1433100452606317504985611860713079871716" +
+                                "8809146278034477061142090096734446658190" +
+                                "8273334857030516871663995504285034522155" +
+                                "7158160427604895839673593745279150722839" +
+                                "3997083495197879290548002853265127569910" +
+                                "9306488129210915495451479419727501586051" +
+                                "1232507931203905482587057398637416125459" +
+                                "0876872367709717423642369650017374448020" +
+                                "8386154750356267714638641781056467325078" +
+                                "08534977443900875333446450467047221"
+                );
 
         // No, these "0"s are not an error.
         //  The nextProbablePrime is only "735(hex)" away from 2^4100...
@@ -246,51 +251,50 @@ public class SecretShare
         //  against an accidental change in the string.
         //   (Big Integer Checksum)
         String bigintcs =
-            "bigintcs:100000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000000-000000-000000-" +
-            "000000-000000-000000-000000-000735-4C590B";
+                "bigintcs:100000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000000-000000-000000-" +
+                        "000000-000000-000000-000000-000735-4C590B";
 
         // Compare the values of both strings before returning a value.
         // This guards against accidental changes to the strings
         return checkAndReturn("4096bit prime", p4096one, bigintcs);
     }
 
-
     public static BigInteger getPrimeUsedFor384bitSecretPayload()
     {
         // This big integer was created with probablePrime(386-bits)
         // This prime is bigger than 2^384
         BigInteger p194one =
-            new BigInteger("830856716641269388050926147210" +
-                           "378437007763661599988974204336" +
-                           "741171904442622602400099072063" +
-                           "84693584652377753448639527");
+                new BigInteger("830856716641269388050926147210" +
+                        "378437007763661599988974204336" +
+                        "741171904442622602400099072063" +
+                        "84693584652377753448639527");
 
         String bigintcs =
-            "bigintcs:000002-1bd189-52959f-874f79-3d6cf5-11ac82-e6cea4-46c19c-5f523a-5318c7-" +
-            "e0f379-66f9e1-308c61-2d8d0b-dba253-6f54b0-ec6c27-3198DB";
+                "bigintcs:000002-1bd189-52959f-874f79-3d6cf5-11ac82-e6cea4-46c19c-5f523a-5318c7-" +
+                        "e0f379-66f9e1-308c61-2d8d0b-dba253-6f54b0-ec6c27-3198DB";
 
         return checkAndReturn("384bit prime", p194one, bigintcs);
     }
@@ -300,44 +304,13 @@ public class SecretShare
         // This big integer was created with probablePrime(194-bits)
         // This prime is bigger than 2^192
         BigInteger p194one =
-            new BigInteger("14976407493557531125525728362448106789840013430353915016137");
+                new BigInteger("14976407493557531125525728362448106789840013430353915016137");
 
         String bigintcs =
-            "bigintcs:000002-62c8fd-6ec81b-3c0584-136789-80ad34-9269af-da237f-8ff3c9-12BCCD";
+                "bigintcs:000002-62c8fd-6ec81b-3c0584-136789-80ad34-9269af-da237f-8ff3c9-12BCCD";
 
         return checkAndReturn("192bit prime", p194one, bigintcs);
     }
-
-
-    /**
-     * Guard against accidental changes to the strings.
-     *
-     * @param which caller
-     * @param expected value as biginteger
-     * @param asbigintcs value as big-integer-checksum string
-     * @return expected or throw exception
-     * @throws SecretShareException if expected does not match asbigintcs
-     */
-    private static BigInteger checkAndReturn(String which,
-                                             BigInteger expected,
-                                             String asbigintcs)
-    {
-        BigInteger other =
-                BigIntStringChecksum.fromString(asbigintcs).asBigInteger();
-
-        if (expected.equals(other))
-        {
-            return expected;
-        }
-        else
-        {
-            throw new SecretShareException(which + " failure");
-        }
-    }
-    // ==================================================
-    // instance data
-    // ==================================================
-    private final PublicInfo publicInfo;
 
     // ==================================================
     // factories
@@ -347,9 +320,26 @@ public class SecretShare
     // constructors
     // ==================================================
 
-    public SecretShare(final PublicInfo inPublicInfo)
-    {
-        publicInfo = inPublicInfo;
+    /**
+     * Guard against accidental changes to the strings.
+     *
+     * @param which      caller
+     * @param expected   value as biginteger
+     * @param asbigintcs value as big-integer-checksum string
+     * @return expected or throw exception
+     * @throws SecretShareException if expected does not match asbigintcs
+     */
+    private static BigInteger checkAndReturn(String which,
+                                             BigInteger expected,
+                                             String asbigintcs) {
+        BigInteger other =
+                BigIntStringChecksum.fromString(asbigintcs).asBigInteger();
+
+        if (expected.equals(other)) {
+            return expected;
+        } else {
+            throw new SecretShareException(which + " failure");
+        }
     }
 
 
@@ -408,8 +398,7 @@ public class SecretShare
 
         for (int x = 1, n = publicInfo.getNforSplit() + 1; x < n; x++)
         {
-            final BigInteger fofx = equation.calculateFofX(BigInteger.valueOf(x));
-            BigInteger data = fofx;
+            BigInteger data = equation.calculateFofX(BigInteger.valueOf(x));
             if (publicInfo.primeModulus != null)
             {
                 data = data.mod(publicInfo.primeModulus);
@@ -429,7 +418,7 @@ public class SecretShare
      */
     public CombineOutput combine(final List<ShareInfo> usetheseshares)
     {
-        CombineOutput ret = null;
+        CombineOutput ret;
 
         sanityCheckPublicInfos(publicInfo, usetheseshares);
 
@@ -446,7 +435,7 @@ public class SecretShare
         final int size = publicInfo.getK();
         BigInteger[] xarray = new BigInteger[size];
         BigInteger[] fofxarray = new BigInteger[size];
-        for (int i = 0, n = size; i < n; i++)
+        for (int i = 0; i < size; i++)
         {
             xarray[i] = usetheseshares.get(i).getXasBigInteger();
             fofxarray[i] = usetheseshares.get(i).getShare();
@@ -595,7 +584,7 @@ public class SecretShare
     }
     private void checkForDuplicatesOrThrow(List<ShareInfo> shares)
     {
-        Set<ShareInfo> seen = new HashSet<ShareInfo>();
+        Set<ShareInfo> seen = new HashSet<>();
         for (ShareInfo s : shares)
         {
             if (seen.contains(s))
@@ -621,7 +610,7 @@ public class SecretShare
     {
         for (int i = 1, n = coeffs.length; i < n; i++)
         {
-            BigInteger big = null;
+            BigInteger big;
             //big = BigInteger.valueOf((random.nextInt() % 20) + 1);
 
             big = BigInteger.valueOf(random.nextLong());
@@ -650,13 +639,79 @@ public class SecretShare
     // public
     // ==================================================
 
+    public ParanoidOutput combineParanoid(List<ShareInfo> shares) {
+        return combineParanoid(shares, null);
+    }
+
+    public ParanoidOutput combineParanoid(List<ShareInfo> shares,
+                                          Integer maximumCombinationsToTest) {
+        ParanoidOutput ret = new ParanoidOutput();
+        ret.maximumCombinationsAllowedToTest = maximumCombinationsToTest;
+
+        BigInteger answer = null;
+
+        CombinationGenerator<ShareInfo> combo =
+                new CombinationGenerator<>(shares,
+                        publicInfo.getK());
+        ret.totalNumberOfCombinations = combo.getTotalNumberOfCombinations();
+
+        final int percentEvery = 30;  // or 10 for every 10%
+        int outputEvery = 100;
+        if (maximumCombinationsToTest != null) {
+            if (BigInteger.valueOf(maximumCombinationsToTest)
+                    .compareTo(combo.getTotalNumberOfCombinations()) > 0) {
+                maximumCombinationsToTest = combo.getTotalNumberOfCombinations().intValue();
+                outputEvery = (maximumCombinationsToTest * percentEvery) / 100 + 1;
+            }
+        } else {
+            outputEvery = (combo.getTotalNumberOfCombinations().intValue() * percentEvery) / 100 + 1;
+        }
+
+
+        int count = -1;
+        for (List<SecretShare.ShareInfo> usetheseshares : combo) {
+            count++;
+            if (maximumCombinationsToTest != null) {
+                if (count > maximumCombinationsToTest) {
+                    break;
+                }
+            }
+
+            if ((count % outputEvery) == 0) {
+                ret.recordCombination(combo.getCurrentCombinationNumber(),
+                        combo.getIndexesAsString(),
+                        dumpshares(usetheseshares));
+            }
+
+            SecretShare.CombineOutput solved = this.combine(usetheseshares);
+            BigInteger solve = solved.getSecret();
+            if (answer == null) {
+                answer = solve;
+            } else {
+                if (!answer.equals(solve)) {
+                    throw new SecretShareException("Paranoid combine failed, on combination at count=" + count);
+                }
+            }
+        }
+        ret.agreedAnswerEveryTime = answer;
+
+        return ret;
+    }
+
+    private String dumpshares(List<ShareInfo> usetheseshares) {
+        String ret = "";
+        for (ShareInfo share : usetheseshares) {
+            ret += " " + share.getShare();
+        }
+        return ret;
+    }
+
     /**
      * Holds all the "publicly available" information about a secret share.
      * Holds both "required" and "optional" information.
      *
      */
-    public static class PublicInfo
-    {
+    public static class PublicInfo {
         // the required public info: "K" and the modulus
         private final int k;                         // determines the order of the polynomial
         private final BigInteger primeModulus;       // can be null
@@ -673,8 +728,7 @@ public class SecretShare
         public PublicInfo(final Integer inN,
                           final int inK,
                           final BigInteger inPrimeModulus,
-                          final String inDescription)
-        {
+                          final String inDescription) {
             super();
             this.n = inN;
             this.k = inK;
@@ -682,74 +736,65 @@ public class SecretShare
             this.description = inDescription;
 
             UUID uuidobj = UUID.randomUUID();
-            uuid =  uuidobj.toString();
+            uuid = uuidobj.toString();
 
             date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
-            if (n != null)
-            {
-                if (k > n)
-                {
+            if (n != null) {
+                if (k > n) {
                     throw new SecretShareException("k cannot be bigger than n [k=" + k +
-                                                   " n=" + n + "]");
+                            " n=" + n + "]");
                 }
             }
         }
 
         @Override
-        public String toString()
-        {
+        public String toString() {
             return "PublicInfo[k=" + k + ", n=" + n + "\n" +
-                "modulus=" + primeModulus + "\n" +
-                "description=" + description + "\n" +
-                "date=" + date + "\n" +
-                "uuid=" + uuid +
-                "]";
+                    "modulus=" + primeModulus + "\n" +
+                    "description=" + description + "\n" +
+                    "date=" + date + "\n" +
+                    "uuid=" + uuid +
+                    "]";
         }
-        public String debugDump()
-        {
+
+        public String debugDump() {
             return toString();
         }
-        public final int getNforSplit()
-        {
-            if (n == null)
-            {
+
+        public final int getNforSplit() {
+            if (n == null) {
                 throw new SecretShareException("n was not set, can not perform split");
-            }
-            else
-            {
+            } else {
                 return n;
             }
         }
-        public final int getN()
-        {
-            if (n == null)
-            {
+
+        public final int getN() {
+            if (n == null) {
                 return -1;
-            }
-            else
-            {
+            } else {
                 return n;
             }
         }
-        public final int getK()
-        {
+
+        public final int getK() {
             return k;
         }
-        public final BigInteger getPrimeModulus()
-        {
+
+        public final BigInteger getPrimeModulus() {
             return primeModulus;
         }
-        public final String getDescription()
-        {
+
+        public final String getDescription() {
             return description;
         }
-        public final String getUuid()
-        {
+
+        public final String getUuid() {
             return uuid;
         }
-        public final String getDate()
-        {
+
+        public final String getDate() {
             return date;
         }
     }
@@ -759,7 +804,6 @@ public class SecretShare
      * aka a "Share" of the secret.
      *
      * @author tiemens
-     *
      */
     public static class ShareInfo
     {
@@ -780,8 +824,7 @@ public class SecretShare
             {
                 throw new SecretShareException("share cannot be null");
             }
-            if (inPublicInfo == null)
-            {
+            if (inPublicInfo == null) {
                 throw new SecretShareException("publicinfo cannot be null");
             }
 
@@ -789,6 +832,7 @@ public class SecretShare
             share = inShare;
             publicInfo = inPublicInfo;
         }
+
         public String debugDump()
         {
             return "ShareInfo[x=" + x + "\n" +
@@ -797,35 +841,36 @@ public class SecretShare
                     " public=" + publicInfo.debugDump() +
                     "]";
         }
+
         public final int getIndex()
         {
             return x;
         }
-        public final int getX()
-        {
+
+        public final int getX() {
             return x;
         }
-        public final BigInteger getXasBigInteger()
-        {
+
+        public final BigInteger getXasBigInteger() {
             return BigInteger.valueOf(x);
         }
-        public final BigInteger getShare()
-        {
+
+        public final BigInteger getShare() {
             return share;
         }
-        public final PublicInfo getPublicInfo()
-        {
+
+        public final PublicInfo getPublicInfo() {
             return publicInfo;
         }
+
         @Override
-        public int hashCode()
-        {
+        public int hashCode() {
             // Yes, this is a terrible implementation.   But it is correct.
             return x;
         }
+
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (obj instanceof ShareInfo)
             {
                 return equalsType((ShareInfo) obj);
@@ -836,16 +881,15 @@ public class SecretShare
             }
         }
 
-        public boolean equalsType(ShareInfo other)
-        {
+        public boolean equalsType(ShareInfo other) {
             // NOTE: equality of a ShareInfo is based on:
             //  1.  x
             //  2.  f(x)
             //  3.  k
-            return ((this.x == other.x)  &&
+            return ((this.x == other.x) &&
                     (this.share.equals(other.share)) &&
                     (this.publicInfo.k == other.publicInfo.k)
-                   );
+            );
         }
     }
 
@@ -858,7 +902,7 @@ public class SecretShare
     public static class SplitSecretOutput
     {
         private final PublicInfo publicInfo;
-        private final List<ShareInfo> sharesInfo = new ArrayList<ShareInfo>();
+        private final List<ShareInfo> sharesInfo = new ArrayList<>();
         private final PolyEquationImpl polynomial;
 
         public SplitSecretOutput(final PublicInfo inPublicInfo,
@@ -867,102 +911,30 @@ public class SecretShare
             publicInfo = inPublicInfo;
             polynomial = inPolynomial;
         }
-        public String debugDump()
-        {
+
+        public String debugDump() {
             String ret = "Public=" + publicInfo.debugDump() + "\n";
 
             ret += "EQ: " + polynomial.debugDump() + "\n";
 
-            for (ShareInfo share : sharesInfo)
-            {
+            for (ShareInfo share : sharesInfo) {
                 ret += "SHARE: " + share.debugDump() + "\n";
             }
             return ret;
         }
+
         public final List<ShareInfo> getShareInfos()
         {
             return Collections.unmodifiableList(sharesInfo);
         }
-        public final PublicInfo getPublicInfo()
-        {
+
+        public final PublicInfo getPublicInfo() {
             return publicInfo;
         }
+
         public void debugPrintEquationCoefficients(PrintStream out) {
             polynomial.debugPrintEquationCoefficients(out);
         }
-    }
-
-    public ParanoidOutput combineParanoid(List<ShareInfo> shares)
-    {
-        return combineParanoid(shares, null);
-    }
-
-    public ParanoidOutput combineParanoid(List<ShareInfo> shares,
-                                          Integer maximumCombinationsToTest)
-    {
-        ParanoidOutput ret = new ParanoidOutput();
-        ret.maximumCombinationsAllowedToTest = maximumCombinationsToTest;
-
-        BigInteger answer = null;
-
-        CombinationGenerator<ShareInfo> combo =
-            new CombinationGenerator<ShareInfo>(shares,
-                                                publicInfo.getK());
-        ret.totalNumberOfCombinations = combo.getTotalNumberOfCombinations();
-
-        final int percentEvery = 30;  // or 10 for every 10%
-        int outputEvery = 100;
-        if (maximumCombinationsToTest != null)
-        {
-            if (BigInteger.valueOf(maximumCombinationsToTest)
-                    .compareTo(combo.getTotalNumberOfCombinations()) > 0)
-            {
-                maximumCombinationsToTest = combo.getTotalNumberOfCombinations().intValue();
-                outputEvery = (maximumCombinationsToTest * percentEvery ) / 100 + 1;
-            }
-        }
-        else
-        {
-            outputEvery = (combo.getTotalNumberOfCombinations().intValue() * percentEvery ) / 100  + 1;
-        }
-
-
-        int count = -1;
-        for (List<SecretShare.ShareInfo> usetheseshares : combo)
-        {
-            count++;
-            if (maximumCombinationsToTest != null)
-            {
-                if (count > maximumCombinationsToTest)
-                {
-                    break;
-                }
-            }
-
-            if ((count % outputEvery) == 0)
-            {
-                ret.recordCombination(combo.getCurrentCombinationNumber(),
-                                      combo.getIndexesAsString(),
-                                      dumpshares(usetheseshares));
-            }
-
-            SecretShare.CombineOutput solved = this.combine(usetheseshares);
-            BigInteger solve =  solved.getSecret();
-            if (answer == null)
-            {
-                answer = solve;
-            }
-            else
-            {
-                if (! answer.equals(solve))
-                {
-                    throw new SecretShareException("Paranoid combine failed, on combination at count=" + count);
-                }
-            }
-        }
-        ret.agreedAnswerEveryTime = answer;
-
-        return ret;
     }
 
     /**
@@ -985,43 +957,42 @@ public class SecretShare
     }
 
 
+    // ==================================================
+    // non public methods
+    // ==================================================
+
     /**
      * Holds the output of the combineParanoid() operation.
      * "Paranoid" is the term used when:
-     *    "given more shares than needed, check (all) combinations of shares,
-     *     make sure that _each_ combination of shares returns the same secret"
-     *
+     * "given more shares than needed, check (all) combinations of shares,
+     * make sure that _each_ combination of shares returns the same secret"
      */
     public static class ParanoidOutput
     {
+        private final List<String> combinations = new ArrayList<>();
         private Integer maximumCombinationsAllowedToTest; // null means "all"
         private BigInteger totalNumberOfCombinations;
-        private final List<String> combinations = new ArrayList<String>();
         private BigInteger agreedAnswerEveryTime;
 
-        public String getParanoidCompleteOutput()
-        {
+        public String getParanoidCompleteOutput() {
             String ret = getParanoidHeaderOutput();
             ret += getParanoidCombinationOutput();
             return ret;
         }
 
-        public String getParanoidHeaderOutput()
-        {
+        public String getParanoidHeaderOutput() {
             String ret = "SecretShare.paranoid(max=" +
-                        ((maximumCombinationsAllowedToTest != null) ? maximumCombinationsAllowedToTest : "all") +
-                        " combo.total=" +
-                        totalNumberOfCombinations +
-                        ")";
+                    ((maximumCombinationsAllowedToTest != null) ? maximumCombinationsAllowedToTest : "all") +
+                    " combo.total=" +
+                    totalNumberOfCombinations +
+                    ")";
             ret += "\n";
             return ret;
         }
 
-        public String getParanoidCombinationOutput()
-        {
+        public String getParanoidCombinationOutput() {
             String ret = "";
-            for (String s : combinations)
-            {
+            for (String s : combinations) {
                 ret += s;
                 ret += "\n";
             }
@@ -1031,36 +1002,19 @@ public class SecretShare
 
         public void recordCombination(BigInteger currentCombinationNumber,
                                       String indexesAsString,
-                                      String dumpshares)
-        {
+                                      String dumpshares) {
             String s = "Combination: " +
-                        currentCombinationNumber +
-                        " of " +
-                        totalNumberOfCombinations +
-                        indexesAsString +
-                        dumpshares;
+                    currentCombinationNumber +
+                    " of " +
+                    totalNumberOfCombinations +
+                    indexesAsString +
+                    dumpshares;
             combinations.add(s);
         }
 
-        public BigInteger getAgreedAnswer()
-        {
+        public BigInteger getAgreedAnswer() {
             return agreedAnswerEveryTime;
         }
-    }
-
-
-    // ==================================================
-    // non public methods
-    // ==================================================
-
-    private String dumpshares(List<ShareInfo> usetheseshares)
-    {
-        String ret = "";
-        for (ShareInfo share : usetheseshares)
-        {
-            ret += " " + share.getShare();
-        }
-        return ret;
     }
 
 
