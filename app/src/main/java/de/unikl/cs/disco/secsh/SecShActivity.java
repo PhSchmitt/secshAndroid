@@ -3,22 +3,23 @@ package de.unikl.cs.disco.secsh;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import de.unikl.cs.disco.engine.SecretShare;
-import de.unikl.cs.disco.engine.SecretShare.ShareInfo;
 import de.unikl.cs.disco.engine.SecretShare.SplitSecretOutput;
 import de.unikl.cs.disco.math.BigIntUtilities;
 
@@ -29,9 +30,8 @@ public class SecShActivity extends ActionBarActivity {
     //constants
     final String hostname = "mptcpsrv1.philippschmitt.de";
     final Integer port = 8080;
-    final String splitIndicator = "|";
-    final int numberofsegments = 100;
-    final int segmentsneededtorecombine = 95;
+    final int numberofsegments = 3;
+    final int segmentsneededtorecombine = 2;
     //TODO: Packetsize so festlegen, dass min. 100 packets
     final int packetsize = 1492;
 
@@ -45,9 +45,11 @@ public class SecShActivity extends ActionBarActivity {
 
         buttonData.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String rawDataString = createRandomString();
+//                String rawDataString = createRandomString();
+                String rawDataString = "123";
                 SplitInput splitInput = SplitInput.parse(numberofsegments, segmentsneededtorecombine, rawDataString);
                 SplitOutput splitOutput = splitInput.output();
+                Log.w("tosend", splitOutput.headerInfo() + splitOutput.allShares());
                 sendData(splitOutput.headerInfo() + splitOutput.allShares());
 
 //                DataSet data = new DataSet(rawDataString.length());
@@ -75,7 +77,7 @@ public class SecShActivity extends ActionBarActivity {
     private String createRandomString() {
         StringBuilder sb = new StringBuilder();
         //TODO ensure, that we have at least 100* packetsize
-        for (int blubb = 0; blubb < 10; blubb++) {
+        for (int blubb = 0; blubb < 5; blubb++) {
             sb.append("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy ");
             sb.append("eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam ");
             sb.append("voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet ");
@@ -112,53 +114,6 @@ public class SecShActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
-    public char shiftBits(char toShift, int shiftcount, Direction direction) {
-        char tmp = toShift;
-        switch (direction) {
-            case left:
-                tmp <<= shiftcount;
-                break;
-            case right:
-                tmp >>>= shiftcount;
-                break;
-            case noDirection:
-                break;
-        }
-        return tmp;
-    }
-
-    public char maskChar(char toMask, char mask, Operation operation) {
-        char tmp = toMask;
-        switch (operation) {
-            case and:
-                tmp &= mask;
-                break;
-            case or:
-                tmp |= mask;
-                break;
-            case xor:
-                tmp ^= mask;
-                break;
-            case noOperation:
-                break;
-        }
-        return tmp;
-    }
-
-
-    public enum Direction {
-        left,
-        right,
-        noDirection
-    }
-
-    public enum Operation {
-        and,
-        or,
-        xor,
-        noOperation
-    }
 
     public static class SplitInput {
         // ==================================================
@@ -206,7 +161,7 @@ public class SecShActivity extends ActionBarActivity {
                             this.modulus, "");
 
             SecretShare secretShare = new SecretShare(publicInfo);
-
+            Log.w("Secret", "" + this.secret);
             ret.splitSecretOutput = secretShare.split(this.secret, this.random);
 
             return ret;
@@ -214,9 +169,8 @@ public class SecShActivity extends ActionBarActivity {
     }
 
     public static class SplitOutput {
-        private static final String SPACES = "                                              ";
 
-        private static final String splitIndicator = "|";
+        private static final String splitChar = "|";
 
         private final SplitInput splitInput;
         private SplitSecretOutput splitSecretOutput;
@@ -229,95 +183,43 @@ public class SecShActivity extends ActionBarActivity {
         // non public methods
         // ==================================================
 
-        private static void markedValue(PrintStream out,
-                                        String fieldname,
-                                        BigInteger n) {
-            out.println(fieldname + " = " + n);
-        }
-
-        private static void field(PrintStream out,
-                                  String label,
-                                  String value) {
-            if (value != null) {
-                String sep;
-                String pad;
-                if ((label.length() > 0) &&
-                        (!label.trim().equals(""))) {
-                    pad = label + SplitOutput.SPACES;
-                    pad = pad.substring(0, 30);
-                    if (value.equals("")) {
-                        pad = label;
-                        sep = "";
-                    } else {
-                        sep = ": ";
-                    }
-                } else {
-                    pad = label;
-                    sep = "";
-                }
-
-                out.println(pad + sep + value);
-            }
-        }
-
-        private static void printShare(PrintStream out,
-                                       ShareInfo share) {
-            markedValue(out, "Share (x:" + share.getIndex() + ")", share.getShare());
-        }
-
-        private void printSharesOnePerPage(PrintStream out) {
-            final List<SecretShare.ShareInfo> shares = splitSecretOutput.getShareInfos();
-            boolean first = true;
-            for (SecretShare.ShareInfo share : shares) {
-
-                printHeaderInfo(out);
-
-                printShare(out, share);
-
-            }
-
-        }
-
-        private void printHeaderInfo(PrintStream out) {
-            final SecretShare.PublicInfo publicInfo = splitSecretOutput.getPublicInfo();
-
-            markedValue(out, "n", BigInteger.valueOf(publicInfo.getN()));
-            markedValue(out, "k", BigInteger.valueOf(publicInfo.getK()));
-            markedValue(out, "modulus", publicInfo.getPrimeModulus());
-        }
-
         private String headerInfo() {
             final SecretShare.PublicInfo publicInfo = splitSecretOutput.getPublicInfo();
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append(publicInfo.getN());
-            stringBuilder.append(splitIndicator);
+            stringBuilder.append(splitChar);
             stringBuilder.append(publicInfo.getK());
-            stringBuilder.append(splitIndicator);
+            stringBuilder.append(splitChar);
             stringBuilder.append(publicInfo.getPrimeModulus());
-            stringBuilder.append(splitIndicator);
-
+            stringBuilder.append(splitChar);
             return stringBuilder.toString();
-        }
-
-        private void printSharesAllAtOnce(PrintStream out) {
-            List<SecretShare.ShareInfo> shares = splitSecretOutput.getShareInfos();
-            out.println("");
-            for (SecretShare.ShareInfo share : shares) {
-                printShare(out, share);
-            }
         }
 
         private String allShares() {
-            StringBuilder stringBuilder = new StringBuilder();
+//            StringBuilder stringBuilder = new StringBuilder();
 
             List<SecretShare.ShareInfo> shares = splitSecretOutput.getShareInfos();
-            //TODO this loop is way too slow - how to speed up?
+//            Log.w("ShareCnt", "" + shares.size());
+//            //TODO this loop is way too slow - how to speed up?
+//            //CPU+Memory usage are way too high
+//            for (SecretShare.ShareInfo share : shares) {
+//                stringBuilder.append(share.getShare());
+//                stringBuilder.append(splitChar);
+//                Log.w("SB it",stringBuilder.toString());
+//
+//            }
+
+            List<String> sharesAsString = new ArrayList<>();
             for (SecretShare.ShareInfo share : shares) {
-                stringBuilder.append(share.getShare());
-                stringBuilder.append(splitIndicator);
+                sharesAsString.add(share.getShare().toString());
             }
-            return stringBuilder.toString();
+
+
+            return TextUtils.join(splitChar, sharesAsString) + splitChar;
+
+
+//            return stringBuilder.toString();
 
         }
     } // class SplitOutput
