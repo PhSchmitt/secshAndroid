@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,10 +30,9 @@ public class SecShActivity extends ActionBarActivity {
     //constants
     final String hostname = "mptcpsrv1.philippschmitt.de";
     final Integer port = 8080;
-    final int numberofsegments = 9;
-    final int segmentsneededtorecombine = 8;
-    //TODO: Packetsize so festlegen, dass min. 100 packets
-    final int packetsize = 1492;
+    final int numberofsegments = 30;
+    final int segmentsneededtorecombine = 29;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +44,13 @@ public class SecShActivity extends ActionBarActivity {
 
         buttonData.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String rawDataString = createRandomString();
-//                String rawDataString = "1234";
+//                String rawDataString = createRandomString();
+                String rawDataString = "1234";
                 SplitInput splitInput = SplitInput.parse(numberofsegments, segmentsneededtorecombine, rawDataString);
                 SplitOutput splitOutput = splitInput.output();
+                Log.w("send len", "" + splitOutput.headerInfo().length() + splitOutput.allShares().length());
+                Log.w("last char", "" + splitOutput.allShares().substring(splitOutput.allShares().length() - 10));
+                Log.w("Stream", "" + splitOutput.headerInfo() + splitOutput.allShares());
                 sendData(splitOutput.headerInfo() + splitOutput.allShares());
                 buttonData.setText("Data sent");
             }
